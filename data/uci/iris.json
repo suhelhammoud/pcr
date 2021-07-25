@@ -1,0 +1,31 @@
+{
+  "relation": "relation name",
+  "size": 150,
+  "attributes": [
+    {
+      "name": "sepallength",
+      "type": "real"
+    },
+    {
+      "name": "sepalwidth",
+      "type": "real"
+    },
+    {
+      "name": "petallength",
+      "type": "real"
+    },
+    {
+      "name": "petal width",
+      "type": "real"
+    },
+    {
+      "name": "class",
+      "type": "nominal",
+      "items": [
+        "Iris-setosa",
+        "Iris-versicolor",
+        "Iris-virginica"
+      ]
+    }
+  ]
+}
