@@ -1,6 +1,7 @@
 import sys
 import numpy as np
 from instances_meta import AType
+from constants import missing_nominal, min_float, max_float
 
 
 class ItemA:
@@ -10,27 +11,24 @@ class ItemA:
                  lbl_count: np.array,
                  rank,
                  a_type=AType.nominal,
-                 itm_index=-1,
-                 lower=-sys.maxsize,
-                 upper=sys.maxsize):
+                 index=missing_nominal,
+                 lower=min_float,
+                 upper=max_float):
         self.att_index = att_index
         self.lbl_index = lbl_index
         self.lbl_count = lbl_count
         self.rank = rank
         self.a_type = a_type
-        self.itm_index = itm_index
+        self.index = index
         self.lower = lower
         self.upper = upper
 
     def max(self, that):
-        if self.rank >= that.rank:
-            return self
-        else:
-            return that
+        return self if self.rank >= that.rank else that
 
     def __repr__(self):
         if self.a_type == AType.nominal:
-            rs = f'itm_index={self.itm_index}'
+            rs = f'itm_index={self.index}'
         else:
             rs = f'lower={self.lower}, upper={self.upper}'
         return f"""Item: type={self.a_type}, 
@@ -53,11 +51,10 @@ class ItemA:
         return self.correct() / self.sum()
 
     def match(self, v):
-        return self.itm_index == int(v) \
+        return self.index == int(v) \
             if self.a_type == AType.nominal \
             else self.lower <= v < self.upper
 
 
 # TODO make sure it is not changed later, make it immutable
-identity_item = ItemA(-1, -1, [], -sys.maxsize, AType.nominal)
-
+identity_item = ItemA(-1, -1, [], min_float, AType.nominal)

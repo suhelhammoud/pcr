@@ -10,39 +10,41 @@ class AType:
     numeric = 1
     o_nominal = 2
 
-    def name(i):
+    def name(i:int):
         return ['nominal', 'numeric'][i]
 
-
-def get_type(v):
-    v = v.lower()
-    if v == 'nominal':
-        return AType.nominal
-    return AType.numeric
+    def get_type(v:str):
+        v = v.lower()
+        return AType.nominal \
+            if v == 'nominal' \
+            else AType.numeric
 
 
 class AttributeMeta:
+
     def __init__(self, d):
         self.name = d['name']
-        self.a_type = get_type(d['type'])
+        self.a_type = AType.get_type(d['type'])
         if 'items' in d:
             self.items = d['items']
 
     def num_items(self):
-        return len(self.items) if self.a_type == AType.nominal else -1
+        return len(self.items) \
+            if self.a_type == AType.nominal \
+            else 0
 
     def to_dict(self):
         d = {'name': self.name}
-        if hasattr(self, 'att_type'):
-            d['att_type'] = self.a_type.__repr__()
+        if hasattr(self, 'a_type'):
+            d['a_type'] = self.a_type.__repr__()
         if hasattr(self, 'items'):
             d['items'] = self.items
         return d
 
     def to_json(self):
         out = {'name': self.name}
-        if hasattr(self, 'att_type'):
-            out['att_type'] = self.a_type
+        if hasattr(self, 'a_type'):
+            out['a_type'] = self.a_type
         if hasattr(self, 'items'):
             out['items'] = self.items
         return json.dumps(out)
@@ -74,20 +76,17 @@ class InstancesMeta:
         out['attributes'] = [i.to_dict() for i in self.attributes]
         return json.dumps(out, indent=2, )
 
-    def label_index(self):
-        return len(self.attributes) - 1
+    def num_lbl(self):
+        return self.attributes[-1].num_items()
 
-    def num_labels(self):
-        return len(self.attributes[-1].items)
-
-    def label(self):
+    def lbl(self):
         return self.attributes[-1]
 
     def num_items(self, idx=None):
-        if idx is not None:
-            return len(self.attributes[idx].num_items())
-        else:
+        if idx is None:
             return [att.num_items() for att in self.attributes]
+        else:
+            return self.attributes[idx].num_items()
 
     def a_type(self, att_index=None):
         if att_index is None:
@@ -98,25 +97,13 @@ class InstancesMeta:
     def num_attributes(self):
         return len(self.attributes) - 1
 
-    def num_items(self, att_index=None):
-        if att_index is None:
-            return [att.num_items() for att in self.attributes]
+    def headers(self, a_type=None):
+        if a_type is None:
+            return [i.name for i in self.attributes]
         else:
-            return self.att(att_index).num_items()
+            return [i.name for i in self.attributes
+                    if i.a_type == a_type]
 
-    def att_indexes(self):
-        return list(range(len(self.attributes) - 1))
-
-    def att(self, att_index):
-        return self.attributes[att_index]
-
-    def headers(self, htype):
-        return [i.name for i in self.attributes if i.a_type == htype]
-
-    def nominal_indexes(self):
-        return self.indexes_with_type(AType.nominal)
-
-    def indexes_with_type(self, tp):
+    def indexes_of_type(self, a_type):
         return [i for i, att in enumerate(self.attributes)
-                if att.a_type == tp]
-
+                if att.a_type == a_type]

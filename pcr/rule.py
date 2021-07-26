@@ -1,6 +1,4 @@
-import numpy as np
-
-from pcr import item
+from item import ItemA
 
 
 class Rule:
@@ -13,7 +11,7 @@ class Rule:
 
     def last(self):
         assert len(self.items) > 0
-        self.items[-1]
+        return self.items[-1]
 
     def errors(self):
         return self.last().errors()
@@ -30,13 +28,13 @@ class Rule:
     def contains_att(self, att_index):
         return any(a.att_index == att_index for a in self.items)
 
-    def add_test(self, item: item):
-        assert not self.contains_att(item.att_index)
-        self.items.append(item)
+    def add_test(self, itm: ItemA):
+        assert not self.contains_att(itm.att_index)
+        self.items.append(itm)
 
-    def can_enhance_rule(self, item: item):
-        return item.lbl_index == self.lbl_index and \
-               item.confidence() >= self.confidence()
+    def can_enhance_rule(self, itm: ItemA):
+        return itm.lbl_index == self.lbl_index and \
+               itm.confidence() >= self.confidence()
 
     def __repr__(self):
         pass  # TODO

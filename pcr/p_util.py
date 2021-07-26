@@ -2,25 +2,26 @@ import numpy as np
 
 from item import identity_item
 from instances import Instances, get_instances
-from lines import get_diff, count_labels_nominal, \
-    count_labels_numeric, get_max_item, get_covered_by_item
+from lines import count_labels_nominal, \
+    get_max_item, get_covered_by_item, get_ranges
 from rule import Rule
 from instances_meta import AType
-from ranges import get_ranges
 
 
-def best_rules(data: Instances,
+def best_rules(instances: Instances,
                min_supp: int,
                add_default_rule=False):
     rules = []
-    lines_remained = np.arange(data.num_instances(), dtype='int32')
+    lines_remained = np.arange(instances.num_instances(), dtype=np.int32)
     while len(lines_remained) >= min_supp:
-        rule = best_rule(data, min_supp, lines_remained)
+        rule = best_rule(instances, min_supp, lines_remained)
 
         if rule is None:
             break
 
-        lines_remained = get_diff(lines_remained, rule.lines)
+        lines_remained = np.setdiff1d(lines_remained,
+                                      rule.lines,
+                                      assume_unique=True)
         # rule clean lines
         rule.lines = None
         rules.append(rule)
@@ -59,8 +60,8 @@ def best_rule(data: Instances,
         mx.a_type = tp
 
         if tp == AType.numeric:
-            mx.lower = nitems[mx.itm_index][0]
-            mx.upper = nitems[mx.itm_index][1]
+            mx.lower = nitems[mx.index][0]
+            mx.upper = nitems[mx.index][1]
             print('ok')
 
         mx_item = mx_item.max(mx)
@@ -114,6 +115,6 @@ if __name__ == '__main__':
     num_labels = num_items[-1]
     num_items = num_items[:-1]
     a_types = data.meta.a_type()
-    all_lines = np.arange(0, data.num_instances(), dtype='int32')
+    all_lines = np.arange(0, data.num_instances(), dtype=np.int32)
 
     rules = best_rules(data, min_supp=2)
