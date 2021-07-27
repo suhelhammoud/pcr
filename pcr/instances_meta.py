@@ -76,21 +76,21 @@ class InstancesMeta:
         out['attributes'] = [i.to_dict() for i in self.attributes]
         return json.dumps(out, indent=2, )
 
-    def num_lbl(self):
+    def num_labels(self):
         return self.attributes[-1].num_items()
 
-    def lbl(self):
+    def labels(self):
         return self.attributes[-1]
 
-    def num_items(self, idx=None):
-        if idx is None:
-            return [att.num_items() for att in self.attributes]
+    def num_items(self, att_index=None):
+        if att_index is None:
+            return [att.num_items() for att in self.attributes[:-1]]
         else:
-            return self.attributes[idx].num_items()
+            return self.attributes[att_index].num_items()
 
     def a_type(self, att_index=None):
         if att_index is None:
-            return [a.a_type for a in self.attributes]
+            return [a.a_type for a in self.attributes[:-1]]
         else:
             return self.attributes[att_index].a_type
 
@@ -105,5 +105,5 @@ class InstancesMeta:
                     if i.a_type == a_type]
 
     def indexes_of_type(self, a_type):
-        return [i for i, att in enumerate(self.attributes)
+        return [i for i, att in enumerate(self.attributes[:-1])
                 if att.a_type == a_type]

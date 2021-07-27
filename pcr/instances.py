@@ -58,7 +58,7 @@ def _load_csv(file_name):
 class Instances:
     def __init__(self, meta: AttributeMeta,
                  data_file=None):
-        self.meta = meta
+        self.meta: AttributeMeta = meta
         if data_file is not None:
             _load_csv(data_file)
 
@@ -80,6 +80,18 @@ class Instances:
 
     def num_instances(self):
         return self.labels.size
+
+    def num_attributes(self):
+        return self.meta.num_attributes()
+
+    def num_items(self, att_index=None):
+        return self.meta.num_items(att_index)
+
+    def num_labels(self):
+        return self.meta.num_labels()
+
+    def a_type(self, att_index=None):
+        return self.meta.a_type(att_index)
 
 
 def get_instances():

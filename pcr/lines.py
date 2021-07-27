@@ -1,9 +1,8 @@
 import numpy as np
-
 from item import ItemA
 from instances_meta import AType
 from instances import missing_nominal
-from constants import missing_numeric, min_float
+from constants import missing_numeric, min_float, max_float
 
 
 def none_missing(att,
@@ -82,6 +81,14 @@ def sliding_window(a, window):
     return np.lib.stride_tricks.as_strided(a, shape=shape, strides=strides)
 
 
+def get_splits_ranges(att: np.array):
+    splits = [(a[0] + a[1]) / 2
+              for a in sliding_window(att, 2)]
+    splits.insert(0, min_float)
+    splits.append(max_float)
+    return np.array(sliding_window(np.array(splits, dtype=np.float32), 2))
+
+
 def get_ranges(att: np.array,
                lbl: np.array,
                num_lbl):
@@ -92,11 +99,12 @@ def get_ranges(att: np.array,
     a_dif = np.diff(att_sorted)
     lbl_dif = np.diff(lbl_sorted)
 
-    splits = np.logical_or(a_dif == 0, lbl_dif == 0)
-    result = np.where(splits is False)[0] + 1
-    print(result)
-    splt = np.split(att_sorted, result)
-    ranges = np.array([[a[0], a[-1]] for a in splt])
-    lbl_splt = np.split(lbl_sorted, result)
-    counts = np.array([np.bincount(a, minlength=num_lbl) for a in lbl_splt])
-    return counts, ranges
+    can_split = np.logical_and(a_dif != 0, lbl_dif != 0)
+    split_indexes = np.nonzero(can_split)[0] + 1
+
+    ranges = get_splits_ranges(att_sorted[split_indexes])
+
+    lbl_splits = np.split(lbl_sorted, split_indexes)
+    lbl_count = np.array([np.bincount(a, minlength=num_lbl)
+                          for a in lbl_splits])
+    return lbl_count, ranges

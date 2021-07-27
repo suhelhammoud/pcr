@@ -20,7 +20,7 @@ class Rule:
         return self.last().correct()
 
     def cover(self):
-        return self.last().cover()
+        return self.last().sum()
 
     def confidence(self):
         return self.correct() / self.cover()
